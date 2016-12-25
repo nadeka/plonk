@@ -1,0 +1,32 @@
+{
+  "name": "plonk",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "migrate": "knex migrate:latest",
+    "rollback": "knex migrate:rollback",
+    "seed": "knex seed:run",
+    "test": "_mocha --reporter spec",
+    "prestart": "knex migrate:latest && knex seed:run",
+    "test-cover": "istanbul cover _mocha -- --compilers jsx:babel-core/register --recursive test/*"
+  },
+  "dependencies": {
+    "bookshelf": "^0.10.2",
+    "boom": "^4.2.0",
+    "hapi": "^15.2.0",
+    "joi": "^9.2.0",
+    "knex": "^0.12.6",
+    "pg": "^6.1.0",
+    "pg-connection-string": "*"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.15",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.2",
+    "mocha-lcov-reporter": "^1.2.0",
+    "request": "^2.78.0"
+  }
+}
