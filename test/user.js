@@ -37,10 +37,12 @@ describe('Users', function() {
       let validUrl = "http://localhost:6002/users";
 
       request.get({uri: validUrl, json: true}, function(error, response, body) {
+        chai.expect(response.statusCode).to.equal(200);
+
         let users = body;
 
         chai.expect(users).to.be.an('array');
-        chai.expect(users.length).to.equal(1);
+        chai.expect(users.length).to.equal(2);
 
         done();
       });
@@ -52,6 +54,8 @@ describe('Users', function() {
       let validUrl = "http://localhost:6002/users/1";
 
       request.get({uri: validUrl, json: true}, function(error, response, body) {
+        chai.expect(response.statusCode).to.equal(200);
+
         let user = body;
 
         chai.expect(user.name).to.equal('Salli');
@@ -94,24 +98,24 @@ describe('Users', function() {
       };
 
       request.post({uri: url, body: validPostData, json: true}, function (error, response, body) {
+        chai.expect(response.statusCode).to.equal(200);
+
         let user = body;
 
         chai.expect(user.name).to.equal('Pirjo');
         chai.expect(user.password).to.equal('abc');
 
-        chai.expect(response.statusCode).to.equal(200);
-
         request.get({uri: url, json: true}, function (error, response, body) {
           let users = body;
 
-          chai.expect(users.length).to.equal(2);
+          chai.expect(users.length).to.equal(3);
 
           done();
         });
       });
     });
 
-    it('does not create new user and returns status 400 when name is empty', function (done) {
+    it('does not create new user and returns error 400 when name is empty', function (done) {
       let invalidPostData = {
         name: '',
         password: 'abc'
@@ -124,14 +128,14 @@ describe('Users', function() {
         request.get({uri: url, json: true}, function (error, response, body) {
           let users = body;
 
-          chai.expect(users.length).to.equal(1);
+          chai.expect(users.length).to.equal(2);
 
           done();
         });
       });
     });
 
-    it('does not create new user and returns status 400 when name is null', function (done) {
+    it('does not create new user and returns error 400 when name is null', function (done) {
       let invalidPostData = {
         name: null,
         password: 'abc'
@@ -144,14 +148,14 @@ describe('Users', function() {
         request.get({uri: url, json: true}, function (error, response, body) {
           let users = body;
 
-          chai.expect(users.length).to.equal(1);
+          chai.expect(users.length).to.equal(2);
 
           done();
         });
       });
     });
 
-    it('does not create new user and returns status 400 when name field is missing', function (done) {
+    it('does not create new user and returns error 400 when name field is missing', function (done) {
       let invalidPostData = {
         password: 'abc'
       };
@@ -163,7 +167,7 @@ describe('Users', function() {
         request.get({uri: url, json: true}, function (error, response, body) {
           let users = body;
 
-          chai.expect(users.length).to.equal(1);
+          chai.expect(users.length).to.equal(2);
 
           done();
         });

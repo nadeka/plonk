@@ -17,5 +17,8 @@ module.exports = {
     name: Joi.string().alphanum().min(1).max(30).required(),
     creatorid: Joi.number().required(),
     private: Joi.boolean().required()
+  }),
+  joiningUser: Joi.object({
+    userid: Joi.number().required()
   })
 };

@@ -19,6 +19,16 @@ module.exports = [
     }
   },
   {
+    path: '/channels/{id}/join',
+    method: 'POST',
+    config: {
+      handler: channelController.joinChannel,
+      validate: {
+        payload: validators.joiningUser
+      }
+    }
+  },
+  {
     path: '/channels',
     method: 'POST',
     config: {

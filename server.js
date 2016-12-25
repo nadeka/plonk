@@ -9,7 +9,8 @@ server.connection({
   port: process.env.PORT || 6001,
   routes: {
     cors: true
-  }});
+  }
+});
 
 const routes = require('./routes');
 server.route(routes);

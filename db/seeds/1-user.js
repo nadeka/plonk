@@ -12,5 +12,13 @@ exports.seed = function(knex, Promise) {
           updatedat: new Date()
         });
       })
+      .then(function() {
+        return knex('user').insert({
+          name: 'naffe',
+          password: 'naffe95',
+          createdat: new Date(),
+          updatedat: new Date()
+        });
+      })
   );
 };

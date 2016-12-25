@@ -38,6 +38,8 @@ describe('Channels', function() {
       let validUrl = "http://localhost:6002/channels";
 
       request.get({uri: validUrl, json: true}, function(error, response, body) {
+        chai.expect(response.statusCode).to.equal(200);
+
         let channels = body;
 
         chai.expect(channels).to.be.an('array');
@@ -53,6 +55,8 @@ describe('Channels', function() {
       let validUrl = "http://localhost:6002/channels/1";
 
       request.get({uri: validUrl, json: true}, function(error, response, body) {
+        chai.expect(response.statusCode).to.equal(200);
+
         let channel = body;
 
         chai.expect(channel.name).to.equal('Movies');
@@ -86,6 +90,49 @@ describe('Channels', function() {
     });
   });
 
+  describe('POST /channels/{id}/join', function() {
+    let url = 'http://localhost:6002/channels/1';
+
+    it('adds valid user to channel and returns status 200', function (done) {
+      let validPostData = {
+        userid: 2
+      };
+
+      request.post({uri: url + '/join', body: validPostData, json: true}, function (error, response, body) {
+        chai.expect(response.statusCode).to.equal(200);
+
+        chai.expect(body).to.equal('Successfully joined channel.');
+
+        request.get({uri: url, json: true}, function (error, response, body) {
+          let channel = body;
+
+          chai.expect(channel.users.length).to.equal(2);
+
+          done();
+        });
+      });
+    });
+
+    it('does not add user to channel and returns error 400 when invalid user id is given', function (done) {
+      let invalidPostData = {
+        userid: 'asdasd'
+      };
+
+      request.post({uri: url + '/join', body: invalidPostData, json: true}, function (error, response, body) {
+        chai.expect(body.statusCode).to.equal(400);
+        chai.expect(body.error).to.equal('Bad Request');
+
+        request.get({uri: url, json: true}, function (error, response, body) {
+          let channel = body;
+
+          chai.expect(channel.users.length).to.equal(1);
+
+          done();
+        });
+      });
+    });
+  });
+
   describe("POST /channels", function() {
     let url = "http://localhost:6002/channels";
 
@@ -97,6 +144,8 @@ describe('Channels', function() {
       };
 
       request.post({uri: url, body: validPostData, json: true}, function (error, response, body) {
+        chai.expect(response.statusCode).to.equal(200);
+
         let channel = body;
 
         chai.expect(channel.name).to.equal('Programming');
@@ -115,7 +164,7 @@ describe('Channels', function() {
       });
     });
 
-    it('does not create new channel and returns status 400 when name is empty', function (done) {
+    it('does not create new channel and returns error 400 when name is empty', function (done) {
       let invalidPostData = {
         name: '',
         private: false,
@@ -136,7 +185,7 @@ describe('Channels', function() {
       });
     });
 
-    it('does not create new channel and returns status 400 when name is null', function (done) {
+    it('does not create new channel and returns error 400 when name is null', function (done) {
       let invalidPostData = {
         name: null,
         private: false,
@@ -157,7 +206,7 @@ describe('Channels', function() {
       });
     });
 
-    it('does not create new channel and returns status 400 when name field is missing', function (done) {
+    it('does not create new channel and returns error 400 when name field is missing', function (done) {
       let invalidPostData = {
         private: false,
         creatorid: 1
