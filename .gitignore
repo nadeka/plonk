@@ -1,4 +1,9 @@
 node_modules
 *.iml
 *.log
+logs
 .idea
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

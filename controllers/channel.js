@@ -1,6 +1,7 @@
 'use strict';
 
 let channel = require('../models/channel');
+let message = require('../models/msg');
 let Boom = require('boom');
 
 module.exports = {
@@ -9,7 +10,11 @@ module.exports = {
     new channel.Channel({ id: request.params.id })
       .fetch({ withRelated: ['users', 'messages'], require: true })
       .then(function(channel) {
-        reply(channel.toJSON({ omitPivot: true }));
+        let response = channel.toJSON({ omitPivot: true });
+
+        response.users.forEach(user => delete user.password);
+
+        reply(response);
       })
       .catch(function (err) {
         reply(Boom.notFound('Channel not found.'));
@@ -20,8 +25,22 @@ module.exports = {
     new channel.Channel()
       .fetchAll({ withRelated: ['users', 'messages'] })
       .then(function(channels) {
-        reply(channels.toJSON({ omitPivot: true }));
+        let response = channels.toJSON({ omitPivot: true });
+
+        response.forEach(function(channel) {
+          channel.users.forEach(user => delete user.password);
+        });
+
+        reply(response);
       })
+  },
+
+  getMessages: function (request, reply) {
+    new message.Message({channelid: request.params.id})
+      .fetchAll()
+      .then(function(messages) {
+        reply(messages.toJSON({ omitPivot: true }));
+      });
   },
 
   joinChannel: function (request, reply) {
