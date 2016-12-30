@@ -56,14 +56,14 @@ module.exports = {
             }).then(function(m) {
                 reply('Successfully joined channel.');
             }).catch(function(err) {
-              reply(Boom.notFound('Channel could not be joined.'));
+              reply(Boom.internal('Channel could not be joined.'));
             })
           }).catch(function(err) {
-            reply(Boom.notFound('Channel could not be joined.'));
+            reply(Boom.internal('Channel could not be joined.'));
           })
       })
       .catch(function(err) {
-        reply(Boom.notFound('Channel could not be joined.'));
+        reply(Boom.notFound('Channel not found'));
       })
   },
 

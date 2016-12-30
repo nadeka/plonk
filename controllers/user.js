@@ -42,8 +42,8 @@ module.exports = {
 
   postMessage: function (request, reply) {
     let newMessage = {
-      userid: request.params.userid,
-      channelid: request.params.channelid,
+      userid: Number(request.params.id),
+      channelid: request.payload.channelid,
       content: request.payload.content,
       createdat: new Date(),
       updatedat: new Date()
@@ -53,6 +53,9 @@ module.exports = {
       .save()
       .then(function(message) {
         reply(message.toJSON({ omitPivot: true }));
+      })
+      .catch(function(err) {
+        console.log(err);
       });
   },
 
