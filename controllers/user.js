@@ -3,7 +3,7 @@
 let user = require('../models/user');
 let message = require('../models/msg');
 let Boom = require('boom');
-let bcrypt = require('bcrypt');
+let bcrypt = require('bcryptjs');
 let jwt = require('jwt-simple');
 let jwtSecret = require('../config/settings').jwtSecret;
 

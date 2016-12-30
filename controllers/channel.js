@@ -36,7 +36,7 @@ module.exports = {
   },
 
   getMessages: function (request, reply) {
-    new message.Message({channelid: request.params.id})
+    new message.Message({ channelid: request.params.id })
       .fetchAll()
       .then(function(messages) {
         reply(messages.toJSON({ omitPivot: true }));

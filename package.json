@@ -13,7 +13,7 @@
     "test-cover": "istanbul cover _mocha -- --compilers jsx:babel-core/register --recursive test/*"
   },
   "dependencies": {
-    "bcrypt": "^1.0.1",
+    "bcryptjs": "^2.4.0",
     "bookshelf": "^0.10.2",
     "boom": "^4.2.0",
     "hapi": "^15.2.0",
