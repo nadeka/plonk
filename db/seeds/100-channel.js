@@ -22,5 +22,14 @@ exports.seed = function(knex, Promise) {
           updatedat: new Date()
         });
       })
+      .then(function() {
+        return knex('channel').insert({
+          name: 'Football',
+          creatorid: 2,
+          private: false,
+          createdat: new Date(),
+          updatedat: new Date()
+        });
+      })
   );
 };

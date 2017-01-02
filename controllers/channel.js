@@ -31,30 +31,55 @@ module.exports = {
           channel.users.forEach(user => delete user.password);
         });
 
-        reply(response);
+        return reply(response);
       })
+      .catch(function(err) {
+        return reply(Boom.notFound('Channels not found.'));
+      });
   },
 
-  getMessages: function (request, reply) {
-    new message.Message({ channelid: request.params.id })
-      .fetchAll()
-      .then(function(messages) {
-        reply(messages.toJSON({ omitPivot: true }));
+  postMessage: function (request, reply) {
+    let newMessage = {
+      userid: request.userid,
+      channelid: Number(request.params.id),
+      content: request.payload.content,
+      createdat: new Date(),
+      updatedat: new Date()
+    };
+
+    new message.Message(newMessage)
+      .save()
+      .then(function(message) {
+        reply(message.toJSON({ omitPivot: true }));
+      })
+      .catch(function(err) {
+        reply(Boom.badRequest('Message could not be created.'));
       });
   },
 
   joinChannel: function (request, reply) {
     new channel.Channel({ id: request.params.id })
       .fetch({ require: true })
-      .then(function(channel) {
-        channel.load(['users'])
+      .then(function(ch) {
+        ch.load(['users'])
           .then(function(model) {
             model.users().attach({
-                userid: request.payload.userid,
+                userid: request.userid,
                 createdat: new Date(),
                 updatedat: new Date()
             }).then(function(m) {
-                reply('Successfully joined channel.');
+              new channel.Channel({ id: request.params.id })
+                .fetch({ withRelated: ['users', 'messages'], require: true })
+                .then(function(channel) {
+                  let response = channel.toJSON({ omitPivot: true });
+
+                  response.users.forEach(user => delete user.password);
+
+                  reply(response);
+                })
+                .catch(function (err) {
+                  reply(Boom.notFound('Channel not found.'));
+                });
             }).catch(function(err) {
               reply(Boom.internal('Channel could not be joined.'));
             })
@@ -63,7 +88,7 @@ module.exports = {
           })
       })
       .catch(function(err) {
-        reply(Boom.notFound('Channel not found'));
+        reply(Boom.notFound('Channel not found.'));
       })
   },
 
@@ -71,7 +96,7 @@ module.exports = {
     let newChannel = {
       name: request.payload.name,
       private: request.payload.private,
-      creatorid: request.payload.creatorid,
+      creatorid: request.userid,
       createdat: new Date(),
       updatedat: new Date()
     };
@@ -80,6 +105,10 @@ module.exports = {
       .save()
       .then(function(channel) {
         reply(channel.toJSON({ omitPivot: true }));
+      })
+      .catch(function(err) {
+        console.log(err);
+        reply(Boom.badRequest('Channel could not be created.'));
       });
   }
 };

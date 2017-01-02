@@ -48,7 +48,7 @@ describe('Channels', function() {
         let channels = body;
 
         chai.expect(channels).to.be.an('array');
-        chai.expect(channels.length).to.equal(2);
+        chai.expect(channels.length).to.equal(3);
 
         done();
       });
@@ -56,7 +56,7 @@ describe('Channels', function() {
   });
 
   describe('GET /channels/{id}', function() {
-    it('returns correct channel and status 200 when valid id is given', function (done) {
+    it('returns correct channel and status 200 when given channel id is 1', function (done) {
       let validUrl = "http://localhost:6002/channels/1";
 
       request.get({
@@ -78,7 +78,7 @@ describe('Channels', function() {
       });
     });
 
-    it("returns error 404 when invalid id is given", function (done) {
+    it("returns error 400 when given channel id is 'asdasd'", function (done) {
       let invalidUrl = "http://localhost:6002/channels/asdasd";
 
       request.get({
@@ -86,13 +86,13 @@ describe('Channels', function() {
         json: true,
         headers: { 'authorization': testToken }
       }, function(error, response, body) {
-        chai.expect(body.statusCode).to.equal(404);
+        chai.expect(body.statusCode).to.equal(400);
 
         done();
       });
     });
 
-    it("returns error 404 when given id does not exist", function (done) {
+    it("returns error 404 when given channel id is 999999", function (done) {
       let invalidUrl = "http://localhost:6002/channels/999999";
 
       request.get({
@@ -105,50 +105,61 @@ describe('Channels', function() {
         done();
       });
     });
+
+    it("returns error 400 when given channel id is -1", function (done) {
+      let invalidUrl = "http://localhost:6002/channels/-1";
+
+      request.get({
+        uri: invalidUrl,
+        json: true,
+        headers: { 'authorization': testToken }
+      }, function(error, response, body) {
+        chai.expect(body.statusCode).to.equal(400);
+
+        done();
+      });
+    });
+
+    it("returns error 400 when given id is 10000000", function (done) {
+      let invalidUrl = "http://localhost:6002/channels/10000000";
+
+      request.get({
+        uri: invalidUrl,
+        json: true,
+        headers: { 'authorization': testToken }
+      }, function(error, response, body) {
+        chai.expect(body.statusCode).to.equal(400);
+
+        done();
+      });
+    });
   });
 
   describe('POST /channels/{id}/join', function() {
-    let url = 'http://localhost:6002/channels/1';
+    let url = 'http://localhost:6002/channels/3';
 
-    it('adds valid user to channel and returns status 200', function (done) {
-      let validPostData = {
-        userid: 2
-      };
-
+    it('adds user in token to channel and returns status 200', function (done) {
       request.post({
         uri: url + '/join',
-        body: validPostData,
         json: true,
         headers: { 'authorization': testToken }
       }, function (error, response, body) {
         chai.expect(response.statusCode).to.equal(200);
 
-        chai.expect(body).to.equal('Successfully joined channel.');
+        let channel = body;
 
-        request.get({
-          uri: url,
-          json: true,
-          headers: { 'authorization': testToken }
-        }, function (error, response, body) {
-          let channel = body;
+        chai.expect(channel.id).to.equal(3);
+        chai.expect(channel.users.length).to.equal(2);
 
-          chai.expect(channel.users.length).to.equal(2);
-
-          done();
-        });
+        done();
       });
     });
 
-    it('does not add user to channel and returns error 400 when invalid user id is given', function (done) {
-      let invalidPostData = {
-        userid: 'asdasd'
-      };
-
+    it('does not add user to channel and returns error 400 if token is invalid', function (done) {
       request.post({
         uri: url + '/join',
-        body: invalidPostData,
         json: true,
-        headers: { 'authorization': testToken }
+        headers: { 'authorization': 'abcd123' }
       }, function (error, response, body) {
         chai.expect(body.statusCode).to.equal(400);
         chai.expect(body.error).to.equal('Bad Request');
@@ -174,8 +185,7 @@ describe('Channels', function() {
     it('creates new channel and returns status 200 when valid payload is given', function (done) {
       let validPostData = {
         name: 'Programming',
-        private: false,
-        creatorid: 1
+        private: false
       };
 
       request.post({
@@ -201,7 +211,7 @@ describe('Channels', function() {
         }, function (error, response, body) {
           let channels = body;
 
-          chai.expect(channels.length).to.equal(3);
+          chai.expect(channels.length).to.equal(4);
 
           done();
         });
@@ -211,8 +221,7 @@ describe('Channels', function() {
     it('does not create new channel and returns error 400 when name is empty', function (done) {
       let invalidPostData = {
         name: '',
-        private: false,
-        creatorid: 1
+        private: false
       };
 
       request.post({
@@ -231,7 +240,7 @@ describe('Channels', function() {
         }, function (error, response, body) {
           let channels = body;
 
-          chai.expect(channels.length).to.equal(2);
+          chai.expect(channels.length).to.equal(3);
 
           done();
         });
@@ -241,8 +250,7 @@ describe('Channels', function() {
     it('does not create new channel and returns error 400 when name is null', function (done) {
       let invalidPostData = {
         name: null,
-        private: false,
-        creatorid: 1
+        private: false
       };
 
       request.post({
@@ -261,7 +269,7 @@ describe('Channels', function() {
         }, function (error, response, body) {
           let channels = body;
 
-          chai.expect(channels.length).to.equal(2);
+          chai.expect(channels.length).to.equal(3);
 
           done();
         });
@@ -270,8 +278,7 @@ describe('Channels', function() {
 
     it('does not create new channel and returns error 400 when name field is missing', function (done) {
       let invalidPostData = {
-        private: false,
-        creatorid: 1
+        private: false
       };
 
       request.post({
@@ -291,7 +298,7 @@ describe('Channels', function() {
         }, function (error, response, body) {
           let channels = body;
 
-          chai.expect(channels.length).to.equal(2);
+          chai.expect(channels.length).to.equal(3);
 
           done();
         });

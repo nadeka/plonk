@@ -1,7 +1,6 @@
 'use strict';
 
 let channelController = require('../controllers/channel');
-let userController = require('../controllers/user');
 let validators = require('../validators/validators');
 
 module.exports = [
@@ -9,42 +8,47 @@ module.exports = [
     path: '/channels/{id}',
     method: 'GET',
     config: {
-      pre : [
-        { method: userController.verifyJwtToken }
-      ],
-      handler: channelController.getChannel
+      auth: 'token',
+      handler: channelController.getChannel,
+      validate: {
+        params: {
+          id: validators.id
+        }
+      }
     }
   },
   {
     path: '/channels',
     method: 'GET',
     config: {
-      pre : [
-        { method: userController.verifyJwtToken }
-      ],
+      auth: 'token',
       handler: channelController.getChannels
     }
   },
   {
     path: '/channels/{id}/messages',
-    method: 'GET',
+    method: 'POST',
     config: {
-      pre : [
-        { method: userController.verifyJwtToken }
-      ],
-      handler: channelController.getMessages
+      auth: 'token',
+      handler: channelController.postMessage,
+      validate: {
+        payload: validators.message,
+        params: {
+          id: validators.id
+        }
+      }
     }
   },
   {
     path: '/channels/{id}/join',
     method: 'POST',
     config: {
-      pre : [
-        { method: userController.verifyJwtToken }
-      ],
+      auth: 'token',
       handler: channelController.joinChannel,
       validate: {
-        payload: validators.joiningUser
+        params: {
+          id: validators.id
+        }
       }
     }
   },
@@ -52,9 +56,7 @@ module.exports = [
     path: '/channels',
     method: 'POST',
     config: {
-      pre : [
-        { method: userController.verifyJwtToken }
-      ],
+      auth: 'token',
       handler: channelController.createChannel,
       validate: {
         payload: validators.channel

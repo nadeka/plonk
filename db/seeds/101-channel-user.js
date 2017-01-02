@@ -20,5 +20,13 @@ exports.seed = function(knex, Promise) {
           updatedat: new Date()
         });
       })
+      .then(function() {
+        return knex('channel_user').insert({
+          channelid: 3,
+          userid: 2,
+          createdat: new Date(),
+          updatedat: new Date()
+        });
+      })
   );
 };
