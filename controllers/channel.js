@@ -31,10 +31,10 @@ module.exports = {
           channel.users.forEach(user => delete user.password);
         });
 
-        return reply(response);
+        reply(response);
       })
       .catch(function(err) {
-        return reply(Boom.notFound('Channels not found.'));
+        reply(Boom.notFound('Channels not found.'));
       });
   },
 

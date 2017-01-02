@@ -4,6 +4,7 @@ const Hapi = require('hapi');
 const jwt = require('jwt-simple');
 const jwtSecret = require('./config/settings').jwtSecret;
 const authController = require('./controllers/auth');
+const Nes = require('nes');
 
 const server = new Hapi.Server();
 
@@ -15,25 +16,36 @@ server.connection({
   }
 });
 
-server.register([require('hapi-auth-jwt')], function (err) {
-
+server.register(require('hapi-auth-jwt'), function (err) {
   server.auth.strategy('token', 'jwt', {
     key: jwtSecret,
     validateFunc: authController.validate,
     verifyOptions: { algorithms: [ 'HS256' ] }
   });
 
-  const routes = require('./routes');
+  server.register(
+    {
+      register: Nes,
+      options: {
+        auth: {
+          route: 'token'
+        },
+      }
+    },
+    function (err) {
+      const routes = require('./routes');
 
-  server.route(routes);
+      server.route(routes);
 
-  server.start((err) => {
-    if (err) {
-      throw err;
+      server.start((err) => {
+        if (err) {
+          throw err;
+        }
+
+        console.log(`Server running at: ${server.info.uri}`);
+      });
     }
-
-    console.log(`Server running at: ${server.info.uri}`);
-  });
+  );
 });
 
 module.exports = server;
