@@ -31,11 +31,14 @@ server.register(require('hapi-auth-jwt'), function (err) {
           route: 'token'
         },
       }
-    },
-    function (err) {
+    }, function (err) {
       const routes = require('./routes');
 
       server.route(routes);
+
+      server.subscription('/new-message');
+      server.subscription('/new-channel');
+      server.subscription('/user-joined');
 
       server.start((err) => {
         if (err) {
@@ -48,4 +51,6 @@ server.register(require('hapi-auth-jwt'), function (err) {
   );
 });
 
-module.exports = server;
+module.exports = {
+  server
+};

@@ -3,6 +3,7 @@
 let channel = require('../models/channel');
 let message = require('../models/msg');
 let Boom = require('boom');
+let server = require('../server').server;
 
 module.exports = {
 
@@ -50,7 +51,11 @@ module.exports = {
     new message.Message(newMessage)
       .save()
       .then(function(message) {
-        reply(message.toJSON({ omitPivot: true }));
+        let response = message.toJSON({ omitPivot: true });
+
+        server.publish('/new-message', response);
+
+        reply(response);
       })
       .catch(function(err) {
         reply(Boom.badRequest('Message could not be created.'));
@@ -74,6 +79,8 @@ module.exports = {
                   let response = channel.toJSON({ omitPivot: true });
 
                   response.users.forEach(user => delete user.password);
+
+                  server.publish('/user-joined', response);
 
                   reply(response);
                 })
@@ -104,7 +111,11 @@ module.exports = {
     new channel.Channel(newChannel)
       .save()
       .then(function(channel) {
-        reply(channel.toJSON({ omitPivot: true }));
+        let response = channel.toJSON({ omitPivot: true });
+
+        server.publish('/new-channel', response);
+
+        reply(response);
       })
       .catch(function(err) {
         console.log(err);
