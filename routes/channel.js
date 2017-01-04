@@ -8,7 +8,7 @@ module.exports = [
     path: '/channels/{id}',
     method: 'GET',
     config: {
-      auth: 'token',
+      auth: 'session',
       handler: channelController.getChannel,
       validate: {
         params: {
@@ -21,7 +21,7 @@ module.exports = [
     path: '/channels',
     method: 'GET',
     config: {
-      auth: 'token',
+      auth: 'session',
       handler: channelController.getChannels
     }
   },
@@ -29,13 +29,13 @@ module.exports = [
     path: '/channels/{id}/messages',
     method: 'POST',
     config: {
-      auth: 'token',
+      auth: 'session',
       handler: channelController.postMessage,
       validate: {
         payload: validators.message,
         params: {
           id: validators.id
-        }
+        },
       }
     }
   },
@@ -43,7 +43,7 @@ module.exports = [
     path: '/channels/{id}/join',
     method: 'POST',
     config: {
-      auth: 'token',
+      auth: 'session',
       handler: channelController.joinChannel,
       validate: {
         params: {
@@ -56,11 +56,11 @@ module.exports = [
     path: '/channels',
     method: 'POST',
     config: {
-      auth: 'token',
+      auth: 'session',
       handler: channelController.createChannel,
       validate: {
         payload: validators.channel
       }
-    }
+    },
   }
 ];

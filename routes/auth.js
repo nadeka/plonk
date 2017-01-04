@@ -23,5 +23,13 @@ module.exports = [
         payload: validators.user
       }
     }
+  },
+  {
+    path: '/reauthenticate',
+    method: 'POST',
+    config: {
+      handler: authController.reauthenticate,
+      auth: 'session'
+    }
   }
 ];

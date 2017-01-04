@@ -8,7 +8,7 @@ module.exports = [
     path: '/users/{id}',
     method: 'GET',
     config: {
-      auth: 'token',
+      auth: 'session',
       handler: userController.getUser,
       validate: {
         params: {
@@ -21,7 +21,7 @@ module.exports = [
     path: '/users',
     method: 'GET',
     config: {
-      auth: 'token',
+      auth: 'session',
       handler: userController.getUsers
     }
   }

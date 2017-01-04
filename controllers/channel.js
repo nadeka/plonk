@@ -41,7 +41,7 @@ module.exports = {
 
   postMessage: function (request, reply) {
     let newMessage = {
-      userid: request.userid,
+      userid: request.auth.credentials.id,
       channelid: Number(request.params.id),
       content: request.payload.content,
       createdat: new Date(),
@@ -69,7 +69,7 @@ module.exports = {
         ch.load(['users'])
           .then(function(model) {
             model.users().attach({
-                userid: request.userid,
+                userid: request.auth.credentials.id,
                 createdat: new Date(),
                 updatedat: new Date()
             }).then(function(m) {
@@ -103,7 +103,7 @@ module.exports = {
     let newChannel = {
       name: request.payload.name,
       private: request.payload.private,
-      creatorid: request.userid,
+      creatorid: request.auth.credentials.id,
       createdat: new Date(),
       updatedat: new Date()
     };

@@ -2,9 +2,9 @@
 
 const Hapi = require('hapi');
 const jwt = require('jwt-simple');
-const jwtSecret = require('./config/settings').jwtSecret;
 const authController = require('./controllers/auth');
 const Nes = require('nes');
+const settings = require('./config/settings');
 
 const server = new Hapi.Server();
 
@@ -12,43 +12,53 @@ server.connection({
   host: '0.0.0.0',
   port: process.env.PORT || 6001,
   routes: {
-    cors: true
+    cors: {
+      credentials: true
+    }
   }
 });
 
-server.register(require('hapi-auth-jwt'), function (err) {
-  server.auth.strategy('token', 'jwt', {
-    key: jwtSecret,
-    validateFunc: authController.validate,
-    verifyOptions: { algorithms: [ 'HS256' ] }
-  });
+const nesConfig = {
+  register: Nes,
+  auth: {
+    route: 'session'
+  }
+};
 
-  server.register(
-    {
-      register: Nes,
-      options: {
-        auth: {
-          route: 'token'
-        },
-      }
-    }, function (err) {
-      const routes = require('./routes');
-
-      server.route(routes);
-
-      server.subscription('/new-message');
-      server.subscription('/new-channel');
-      server.subscription('/user-joined');
-
-      server.start((err) => {
-        if (err) {
-          throw err;
-        }
-
-        console.log(`Server running at: ${server.info.uri}`);
-      });
+server.register([require('hapi-auth-cookie'), nesConfig], function (err) {
+    if (err) {
+      throw err;
     }
-  );
+
+    server.auth.strategy('session', 'cookie', {
+      cookie: 'accessToken',
+      password: settings.cookiePassword,
+      validateFunc: authController.validate,
+      redirectTo: false,
+      clearInvalid: true,
+
+      // TODO support HTTPS
+      isSecure: false,
+
+      // TODO find a way to make hapi-auth-cookie work with Nes without client manually sending cookie..
+      isHttpOnly: false
+    });
+
+    const routes = require('./routes');
+
+    server.route(routes);
+
+    server.subscription('/new-message');
+    server.subscription('/new-channel');
+    server.subscription('/user-joined');
+
+    server.start((err) => {
+      if (err) {
+        throw err;
+      }
+
+      console.log(`Server running at: ${server.info.uri}`);
+    });
 });
 
 module.exports = {

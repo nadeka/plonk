@@ -5,7 +5,6 @@ process.env.PORT = '6002';
 
 let server = require('../server');
 let bookshelf = require('../config/bookshelf');
-let testToken = require('../config/settings').testToken;
 
 let chai = require('chai');
 
@@ -40,7 +39,7 @@ describe('Auth', function() {
     it('creates new user and returns status 200 when valid payload is given', function (done) {
       let validPostData = {
         name: 'Pirjo',
-        password: 'abc'
+        password: '123'
       };
 
       request.post({
@@ -50,18 +49,19 @@ describe('Auth', function() {
       }, function (error, response, body) {
         chai.expect(response.statusCode).to.equal(200);
 
-        let loginInfo = body;
+        let user = body;
 
-        chai.expect(loginInfo.user.id).to.equal(3);
-        chai.expect(loginInfo.token).to.be.defined;
+        chai.expect(user.id).to.equal(3);
 
         request.get({
           uri: usersUrl,
           json: true,
-          headers: { 'authorization': testToken }
+          headers: {
+            'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0]
+          }
         }, function (error, response, body) {
           let users = body;
-
+          
           chai.expect(users.length).to.equal(3);
 
           done();
@@ -83,17 +83,7 @@ describe('Auth', function() {
         chai.expect(body.statusCode).to.equal(400);
         chai.expect(body.error).to.equal('Bad Request');
 
-        request.get({
-          uri: usersUrl,
-          json: true,
-          headers: { 'authorization': testToken }
-        }, function (error, response, body) {
-          let users = body;
-
-          chai.expect(users.length).to.equal(2);
-
-          done();
-        });
+        done();
       });
     });
 
@@ -111,17 +101,7 @@ describe('Auth', function() {
         chai.expect(body.statusCode).to.equal(400);
         chai.expect(body.error).to.equal('Bad Request');
 
-        request.get({
-          uri: usersUrl,
-          json: true,
-          headers: { 'authorization': testToken }
-        }, function (error, response, body) {
-          let users = body;
-
-          chai.expect(users.length).to.equal(2);
-
-          done();
-        });
+        done();
       });
     });
 
@@ -133,26 +113,15 @@ describe('Auth', function() {
       request.post({
         uri: registerUrl,
         body: invalidPostData,
-        json: true,
-        headers: { 'authorization': testToken }
+        json: true
       }, function (error, response, body) {
         chai.expect(body.statusCode).to.equal(400);
         chai.expect(body.error).to.equal('Bad Request');
 
-        request.get({
-          uri: usersUrl,
-          json: true,
-          headers: { 'authorization': testToken }
-        }, function (error, response, body) {
-          let users = body;
-
-          chai.expect(users.length).to.equal(2);
-
-          done();
-        });
+        done();
       });
     })
-  })
+  });
 
   describe('POST /login', function() {
     it('should successfully authenticate existing user with correct password', function (done) {
@@ -171,10 +140,9 @@ describe('Auth', function() {
       }, function (error, response, body) {
         chai.expect(response.statusCode).to.equal(200);
 
-        let loginInfo = body;
+        let user = body;
 
-        chai.expect(loginInfo.user.id).to.equal(3);
-        chai.expect(loginInfo.token).to.be.defined;
+        chai.expect(user.id).to.equal(3);
 
         let validLoginData = {
           name: 'Pirjo',
@@ -188,10 +156,9 @@ describe('Auth', function() {
         }, function (error, response, body) {
           chai.expect(response.statusCode).to.equal(200);
 
-          let loginInfo = body;
+          let user = body;
 
-          chai.expect(loginInfo.user.id).to.equal(3);
-          chai.expect(loginInfo.token).to.be.defined;
+          chai.expect(user.id).to.equal(3);
 
           done();
         });
@@ -214,9 +181,9 @@ describe('Auth', function() {
       }, function (error, response, body) {
         chai.expect(response.statusCode).to.equal(200);
 
-        let loginInfo = body;
+        let user = body;
 
-        chai.expect(loginInfo.user.id).to.equal(3);
+        chai.expect(user.id).to.equal(3);
 
         let invalidLoginData = {
           name: 'Pirjo',

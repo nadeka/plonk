@@ -5,7 +5,6 @@ process.env.PORT = '6002';
 
 let server = require('../server');
 let bookshelf = require('../config/bookshelf');
-let testToken = require('../config/settings').testToken;
 
 let chai = require('chai');
 
@@ -35,102 +34,156 @@ describe('Channels', function() {
 
 
   describe('GET /channels', function() {
-    it('returns all channels and status 200', function (done) {
-      let validUrl = "http://localhost:6002/channels";
+    it('returns all channels and status 200 when given cookie is valid', function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: validUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(response.statusCode).to.equal(200);
+      request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/channels",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(response.statusCode).to.equal(200);
 
-        let channels = body;
+          let channels = body;
 
-        chai.expect(channels).to.be.an('array');
-        chai.expect(channels.length).to.equal(3);
+          chai.expect(channels).to.be.an('array');
+          chai.expect(channels.length).to.equal(3);
 
-        done();
+          done();
+        });
       });
     });
   });
 
   describe('GET /channels/{id}', function() {
-    it('returns correct channel and status 200 when given channel id is 1', function (done) {
-      let validUrl = "http://localhost:6002/channels/1";
+    it('returns correct channel and status 200 when given channel id is 1 and cookie is valid', function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: validUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(response.statusCode).to.equal(200);
+      request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/channels/1",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(response.statusCode).to.equal(200);
 
-        let channel = body;
+          let channel = body;
 
-        chai.expect(channel.name).to.equal('Movies');
-        chai.expect(channel.private).to.equal(false);
-        chai.expect(channel.creatorid).to.equal(1);
-        chai.expect(channel.createdat).to.be.defined;
-        chai.expect(channel.updatedat).to.be.defined;
+          chai.expect(channel.name).to.equal('Movies');
+          chai.expect(channel.private).to.equal(false);
+          chai.expect(channel.creatorid).to.equal(1);
+          chai.expect(channel.createdat).to.be.defined;
+          chai.expect(channel.updatedat).to.be.defined;
 
-        done();
+          done();
+        });
       });
     });
 
-    it("returns error 400 when given channel id is 'asdasd'", function (done) {
-      let invalidUrl = "http://localhost:6002/channels/asdasd";
+    it("returns error 400 when given channel id is 'asdasd' and cookie is valid", function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: invalidUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
+      request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/channels/asdasd",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(body.statusCode).to.equal(400);
 
-        done();
+          done();
+        });
       });
     });
 
-    it("returns error 404 when given channel id is 999999", function (done) {
-      let invalidUrl = "http://localhost:6002/channels/999999";
+    it("returns error 404 when given channel id is 999999 and cookie is valid", function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: invalidUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(body.statusCode).to.equal(404);
+      request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/channels/999999",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(body.statusCode).to.equal(404);
 
-        done();
+          done();
+        });
       });
     });
 
-    it("returns error 400 when given channel id is -1", function (done) {
-      let invalidUrl = "http://localhost:6002/channels/-1";
+    it("returns error 400 when given channel id is -1 and cookie is valid", function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: invalidUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
+      request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/channels/-1",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(body.statusCode).to.equal(400);
 
-        done();
+          done();
+        });
       });
     });
 
-    it("returns error 400 when given id is 10000000", function (done) {
-      let invalidUrl = "http://localhost:6002/channels/10000000";
+    it("returns error 400 when given id is 10000000 and cookie is valid", function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: invalidUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
+      request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/channels/10000000",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(body.statusCode).to.equal(400);
 
-        done();
+          done();
+        });
       });
     });
   });
@@ -138,42 +191,64 @@ describe('Channels', function() {
   describe('POST /channels/{id}/join', function() {
     let url = 'http://localhost:6002/channels/3';
 
-    it('adds user in token to channel and returns status 200', function (done) {
+    it('adds user with valid cookie to channel and returns status 200', function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
+
       request.post({
-        uri: url + '/join',
-        json: true,
-        headers: { 'authorization': testToken }
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
       }, function (error, response, body) {
-        chai.expect(response.statusCode).to.equal(200);
+        request.post({
+          uri: url + '/join',
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function (error, response, body) {
+          chai.expect(response.statusCode).to.equal(200);
 
-        let channel = body;
+          let channel = body;
 
-        chai.expect(channel.id).to.equal(3);
-        chai.expect(channel.users.length).to.equal(2);
+          chai.expect(channel.id).to.equal(3);
+          chai.expect(channel.users.length).to.equal(2);
 
-        done();
+          done();
+        });
       });
     });
 
-    it('does not add user to channel and returns error 400 if token is invalid', function (done) {
+    it('does not add user to channel and returns error 400 if cookie is "abcd123"', function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
+
       request.post({
-        uri: url + '/join',
-        json: true,
-        headers: { 'authorization': 'abcd123' }
-      }, function (error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
-        chai.expect(body.error).to.equal('Bad Request');
-
-        request.get({
-          uri: url,
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, res, body) {
+        request.post({
+          uri: url + '/join',
           json: true,
-          headers: { 'authorization': testToken }
+          headers: { 'Cookie': 'abcd123' }
         }, function (error, response, body) {
-          let channel = body;
+          chai.expect(body.statusCode).to.equal(400);
+          chai.expect(body.error).to.equal('Bad Request');
 
-          chai.expect(channel.users.length).to.equal(1);
+          request.get({
+            uri: url,
+            json: true,
+            headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+          }, function (error, response, body) {
+            let channel = body;
 
-          done();
+            chai.expect(channel.users.length).to.equal(1);
+
+            done();
+          });
         });
       });
     });
@@ -182,125 +257,168 @@ describe('Channels', function() {
   describe("POST /channels", function() {
     let url = "http://localhost:6002/channels";
 
-    it('creates new channel and returns status 200 when valid payload is given', function (done) {
+    it('creates new channel and returns status 200 when valid payload and cookie are given', function (done) {
       let validPostData = {
-        name: 'Programming',
-        private: false
+        name: 'Pirjo',
+        password: '123'
       };
 
       request.post({
-        uri: url,
+        uri: 'http://localhost:6002/register',
         body: validPostData,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function (error, response, body) {
-        chai.expect(response.statusCode).to.equal(200);
+        json: true
+      }, function (error, res, body) {
+        validPostData = {
+          name: 'Programming',
+          private: false
+        };
 
-        let channel = body;
-
-        chai.expect(channel.name).to.equal('Programming');
-        chai.expect(channel.private).to.equal(false);
-        chai.expect(channel.creatorid).to.equal(1);
-        chai.expect(channel.createdat).to.be.defined;
-        chai.expect(channel.updatedat).to.be.defined;
-
-        request.get({
+        request.post({
           uri: url,
+          body: validPostData,
           json: true,
-          headers: { 'authorization': testToken }
+          headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
         }, function (error, response, body) {
-          let channels = body;
+          chai.expect(response.statusCode).to.equal(200);
 
-          chai.expect(channels.length).to.equal(4);
+          let channel = body;
 
-          done();
+          chai.expect(channel.name).to.equal('Programming');
+          chai.expect(channel.private).to.equal(false);
+          chai.expect(channel.creatorid).to.equal(3);
+          chai.expect(channel.createdat).to.be.defined;
+          chai.expect(channel.updatedat).to.be.defined;
+
+          request.get({
+            uri: url,
+            json: true,
+            headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+          }, function (error, response, body) {
+            let channels = body;
+
+            chai.expect(channels.length).to.equal(4);
+
+            done();
+          });
         });
       });
     });
 
     it('does not create new channel and returns error 400 when name is empty', function (done) {
-      let invalidPostData = {
-        name: '',
-        private: false
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
       };
 
       request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, res, body) {
+        let invalidPostData = {
+          name: '',
+          private: false
+        };
+
+        request.post({
           uri: url,
           body: invalidPostData,
           json: true,
-          headers: { 'authorization': testToken }
-      }, function (error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
-        chai.expect(body.error).to.equal('Bad Request');
-
-        request.get({
-          uri: url,
-          json: true,
-          headers: { 'authorization': testToken }
+          headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
         }, function (error, response, body) {
-          let channels = body;
+          chai.expect(body.statusCode).to.equal(400);
+          chai.expect(body.error).to.equal('Bad Request');
 
-          chai.expect(channels.length).to.equal(3);
+          request.get({
+            uri: url,
+            json: true,
+            headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+          }, function (error, response, body) {
+            let channels = body;
 
-          done();
+            chai.expect(channels.length).to.equal(3);
+
+            done();
+          });
         });
       });
     });
 
     it('does not create new channel and returns error 400 when name is null', function (done) {
-      let invalidPostData = {
-        name: null,
-        private: false
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
       };
 
       request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, res, body) {
+        let invalidPostData = {
+          name: null,
+          private: false
+        };
+
+        request.post({
           uri: url,
           body: invalidPostData,
           json: true,
-          headers: { 'authorization': testToken }
-      }, function (error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
-        chai.expect(body.error).to.equal('Bad Request');
-
-        request.get({
-          uri: url,
-          json: true,
-          headers: { 'authorization': testToken }
+          headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
         }, function (error, response, body) {
-          let channels = body;
+          chai.expect(body.statusCode).to.equal(400);
+          chai.expect(body.error).to.equal('Bad Request');
 
-          chai.expect(channels.length).to.equal(3);
+          request.get({
+            uri: url,
+            json: true,
+            headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+          }, function (error, response, body) {
+            let channels = body;
 
-          done();
+            chai.expect(channels.length).to.equal(3);
+
+            done();
+          });
         });
       });
     });
 
     it('does not create new channel and returns error 400 when name field is missing', function (done) {
-      let invalidPostData = {
-        private: false
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
       };
 
       request.post({
-          uri: url,
-          body:
-          invalidPostData,
-          json: true,
-          headers: { 'authorization': testToken }
-      }, function (error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
-        chai.expect(body.error).to.equal('Bad Request');
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, res, body) {
+        let invalidPostData = {
+          private: false
+        };
 
-        request.get({
+        request.post({
           uri: url,
+          body: invalidPostData,
           json: true,
-          headers: { 'authorization': testToken }
+          headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
         }, function (error, response, body) {
-          let channels = body;
+          chai.expect(body.statusCode).to.equal(400);
+          chai.expect(body.error).to.equal('Bad Request');
 
-          chai.expect(channels.length).to.equal(3);
+          request.get({
+            uri: url,
+            json: true,
+            headers: { 'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+          }, function (error, response, body) {
+            let channels = body;
 
-          done();
+            chai.expect(channels.length).to.equal(3);
+
+            done();
+          });
         });
       });
     })

@@ -17,7 +17,7 @@
     "bookshelf": "^0.10.2",
     "boom": "^4.2.0",
     "hapi": "^15.2.0",
-    "hapi-auth-jwt": "^4.0.0",
+    "hapi-auth-cookie": "^6.1.1",
     "joi": "^9.2.0",
     "jwt-simple": "^0.5.1",
     "knex": "^0.12.6",

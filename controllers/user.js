@@ -10,7 +10,9 @@ module.exports = {
       .fetch({ withRelated: ['channels', 'messages'], require: true })
       .then(function(user) {
         let response = user.toJSON({ omitPivot: true });
+
         delete response.password;
+
         reply(response);
       })
       .catch(function (err) {
@@ -23,7 +25,9 @@ module.exports = {
       .fetchAll({ withRelated: ['channels', 'messages'] })
       .then(function(users) {
         let response = users.toJSON({ omitPivot: true });
+
         response.forEach(user => delete user.password);
+
         reply(response);
       })
       .catch(function(err) {

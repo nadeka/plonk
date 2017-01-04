@@ -5,7 +5,6 @@ process.env.PORT = '6002';
 
 let server = require('../server');
 let bookshelf = require('../config/bookshelf');
-let testToken = require('../config/settings').testToken;
 
 let chai = require('chai');
 
@@ -34,86 +33,131 @@ describe('Users', function() {
   });
 
   describe('GET /users', function() {
-    it('returns all users and status 200', function (done) {
-      let validUrl = "http://localhost:6002/users";
+    it('returns all users and status 200 when given cookie is valid', function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: validUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(response.statusCode).to.equal(200);
+      request.post({
+        uri: "http://localhost:6002/register",
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/users",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(response.statusCode).to.equal(200);
 
-        let users = body;
+          let users = body;
 
-        chai.expect(users).to.be.an('array');
-        chai.expect(users.length).to.equal(2);
+          chai.expect(users).to.be.an('array');
+          chai.expect(users.length).to.equal(3);
 
-        done();
+          done();
+        });
       });
     });
   });
 
   describe('GET /users/{id}', function() {
-    it('returns correct user and status 200 when given user id is 1', function (done) {
-      let validUrl = "http://localhost:6002/users/1";
+    it('returns correct user and status 200 when given user id is 1 and cookie is valid', function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: validUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(response.statusCode).to.equal(200);
+      request.post({
+        uri: "http://localhost:6002/register",
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/users/1",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(response.statusCode).to.equal(200);
 
-        let user = body;
+          let user = body;
 
-        chai.expect(user.name).to.equal('Salli');
-        chai.expect(user.createdat).to.be.defined;
-        chai.expect(user.updatedat).to.be.defined;
+          chai.expect(user.name).to.equal('Salli');
+          chai.expect(user.createdat).to.be.defined;
+          chai.expect(user.updatedat).to.be.defined;
 
-        done();
+          done();
+        });
       });
     });
 
-    it("returns error 400 when given user id is 'asdasd'", function (done) {
-      let invalidUrl = "http://localhost:6002/users/asdasd";
+    it("returns error 400 when given user id is 'asdasd' and cookie is valid", function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: invalidUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
+      request.post({
+        uri: "http://localhost:6002/register",
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/users/asdasd",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(body.statusCode).to.equal(400);
 
-        done();
+          done();
+        });
       });
     });
 
-    it("returns error 404 when given user id is 999999", function (done) {
-      let invalidUrl = "http://localhost:6002/users/999999";
+    it("returns error 404 when given user id is 999999 and cookie is valid", function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: invalidUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(body.statusCode).to.equal(404);
+      request.post({
+        uri: "http://localhost:6002/register",
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/users/999999",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(body.statusCode).to.equal(404);
 
-        done();
+          done();
+        });
       });
     });
 
-    it("returns error 400 when given user id is 10000000", function (done) {
-      let invalidUrl = "http://localhost:6002/users/10000000";
+    it("returns error 400 when given user id is 10000000 and cookie is valid", function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
 
-      request.get({
-        uri: invalidUrl,
-        json: true,
-        headers: { 'authorization': testToken }
-      }, function(error, response, body) {
-        chai.expect(body.statusCode).to.equal(400);
+      request.post({
+        uri: "http://localhost:6002/register",
+        body: validPostData,
+        json: true
+      }, function (error, response, body) {
+        request.get({
+          uri: "http://localhost:6002/users/10000000",
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+        }, function(error, response, body) {
+          chai.expect(body.statusCode).to.equal(400);
 
-        done();
+          done();
+        });
       });
     });
   });

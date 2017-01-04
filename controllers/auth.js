@@ -8,19 +8,26 @@ const jwtSecret = require('../config/settings').jwtSecret;
 
 module.exports = {
 
-  validate: function (request, decodedToken, callback) {
-    new user.User({ id: decodedToken.id })
-      .fetch({ require: true })
-      .then(function(user) {
-        user = user.toJSON();
+  validate: function (request, cookie, callback) {
+    let payload = jwt.decode(cookie.accessToken, jwtSecret, false, 'HS256');
 
-        request.userid = user.id;
+    if (payload) {
+      new user.User({ id: payload.id })
+        .fetch({ require: true })
+        .then(function(user) {
+          user = user.toJSON({ omitPivot: true });
 
-        callback(null, true, user);
-      })
-      .catch(function (err) {
-        callback(err, false, null);
-      });
+          delete user.password;
+
+          callback(null, true, user);
+        })
+        .catch(function (err) {
+          callback(Boom.unauthorized('Invalid JWT token.'), false, null);
+        });
+    }
+    else {
+      callback(Boom.unauthorized('Invalid JWT token.'), false, null);
+    }
   },
 
   login: function (request, reply) {
@@ -36,11 +43,13 @@ module.exports = {
               username: user.name
             };
 
-            let jwtToken = jwt.encode(payload, jwtSecret);
+            let jwtToken = jwt.encode(payload, jwtSecret, 'HS256');
 
             delete user.password;
 
-            reply({ user: user, token: jwtToken });
+            request.cookieAuth.set({ accessToken: jwtToken });
+
+            reply(user);
           } else {
             reply(Boom.unauthorized('Incorrect password.'));
           }
@@ -51,8 +60,16 @@ module.exports = {
       });
   },
 
+  reauthenticate: function (request, reply) {
+    reply(request.auth.credentials);
+  },
+
   register: function (request, reply) {
     bcrypt.hash(request.payload.password, 10, function(err, hash) {
+      if (err) {
+        reply(Boom.badRequest('User could not be created.'));
+      }
+
       request.payload.password = hash;
 
       let newUser = {
@@ -72,11 +89,13 @@ module.exports = {
             username: user.name
           };
 
-          let jwtToken = jwt.encode(payload, jwtSecret);
+          let jwtToken = jwt.encode(payload, jwtSecret, 'HS256');
 
           delete user.password;
 
-          reply({ user: user, token: jwtToken });
+          request.cookieAuth.set({ accessToken: jwtToken });
+
+          reply(user);
         })
         .catch(function(err) {
           reply(Boom.badRequest('User could not be created.'));
