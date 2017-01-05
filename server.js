@@ -1,31 +1,44 @@
 'use strict';
 
 const Hapi = require('hapi');
-const jwt = require('jwt-simple');
-const authController = require('./controllers/auth');
+const HapiAuthCookie = require('hapi-auth-cookie');
+const Disinfect = require('disinfect');
 const Nes = require('nes');
+
+const authController = require('./controllers/auth');
 const settings = require('./config/settings');
 
 const server = new Hapi.Server();
 
 server.connection({
   host: '0.0.0.0',
-  port: process.env.PORT || 6001,
+  port: settings.port,
   routes: {
     cors: {
-      credentials: true
+      credentials: true,
+      origin: settings.allowedOrigins
     }
   }
 });
 
-const nesConfig = {
-  register: Nes,
-  auth: {
-    route: 'session'
-  }
-};
-
-server.register([require('hapi-auth-cookie'), nesConfig], function (err) {
+server.register([
+  HapiAuthCookie,
+  {
+    register: Disinfect,
+    options: {
+      disinfectQuery: true,
+      disinfectParams: true,
+      disinfectPayload: true,
+      deleteWhitespace: true,
+      deleteEmpty: true
+    }
+  },
+  {
+    register: Nes,
+    auth: {
+      route: 'session'
+    }
+  }], function (err) {
     if (err) {
       throw err;
     }
@@ -36,10 +49,10 @@ server.register([require('hapi-auth-cookie'), nesConfig], function (err) {
       validateFunc: authController.validate,
       redirectTo: false,
       clearInvalid: true,
-      domain: '.exoenzy.me',
+      domain: settings.cookieDomain,
       isSecure: settings.environment !== 'development',
 
-      // TODO find a way to make hapi-auth-cookie work with Nes without client manually sending cookie..
+      // Unfortunately, WS client cannot read http-only cookies..
       isHttpOnly: false
     });
 

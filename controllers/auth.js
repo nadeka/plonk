@@ -3,8 +3,9 @@
 let user = require('../models/user');
 let Boom = require('boom');
 let bcrypt = require('bcryptjs');
-const jwt = require('jwt-simple');
-const jwtSecret = require('../config/settings').jwtSecret;
+let jwt = require('jwt-simple');
+let jwtSecret = require('../config/settings').jwtSecret;
+let server = require('../server');
 
 module.exports = {
 
