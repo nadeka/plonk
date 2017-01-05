@@ -217,8 +217,8 @@ describe('Auth', function() {
       body: invalidLoginData,
       json: true
     }, function (error, response, body) {
-      chai.expect(body.statusCode).to.equal(401);
-      chai.expect(body.error).to.equal('Unauthorized');
+      chai.expect(body.statusCode).to.equal(404);
+      chai.expect(body.error).to.equal('Not Found');
 
       done();
     });

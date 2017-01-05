@@ -52,7 +52,7 @@ server.register([
       domain: settings.cookieDomain,
       isSecure: settings.environment !== 'development',
 
-      // Unfortunately, WS client cannot read http-only cookies..
+      // Unfortunately, WS client cannot send back http-only cookies..
       isHttpOnly: false
     });
 

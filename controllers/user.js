@@ -1,7 +1,8 @@
 'use strict';
 
-let user = require('../models/user');
 let Boom = require('boom');
+
+let user = require('../models/user');
 
 module.exports = {
 
@@ -15,8 +16,8 @@ module.exports = {
 
         reply(response);
       })
-      .catch(function (err) {
-        reply(Boom.notFound('User not found.'));
+      .catch(function(err) {
+        reply(Boom.notFound('User not found'));
       });
   },
 
@@ -31,7 +32,7 @@ module.exports = {
         reply(response);
       })
       .catch(function(err) {
-        reply(Boom.notFound('Users not found.'));
+        reply(Boom.badImplementation('Users could not be fetched from database'));
       });
   }
 };

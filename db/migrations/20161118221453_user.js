@@ -1,7 +1,7 @@
 exports.up = function(knex, Promise) {
   return knex.schema.createTable('user', function(t) {
     t.increments().primary();
-    t.string('name').notNull();
+    t.string('name').notNull().unique();
     t.string('password').notNull();
     t.dateTime('createdat').notNull();
     t.dateTime('updatedat').nullable();

@@ -1,8 +1,9 @@
 'use strict';
 
+let Boom = require('boom');
+
 let channel = require('../models/channel');
 let message = require('../models/msg');
-let Boom = require('boom');
 let server = require('../server').server;
 
 module.exports = {
@@ -17,8 +18,8 @@ module.exports = {
 
         reply(response);
       })
-      .catch(function (err) {
-        reply(Boom.notFound('Channel not found.'));
+      .catch(function(err) {
+        reply(Boom.notFound('Channel not found'));
       });
   },
 
@@ -35,7 +36,7 @@ module.exports = {
         reply(response);
       })
       .catch(function(err) {
-        reply(Boom.notFound('Channels not found.'));
+        reply(Boom.badImplementation('Channels could not be fetched from database'));
       });
   },
 
@@ -58,7 +59,7 @@ module.exports = {
         reply(response);
       })
       .catch(function(err) {
-        reply(Boom.badRequest('Message could not be created.'));
+        reply(Boom.badImplementation('Message could not be saved to database'));
       });
   },
 
@@ -84,18 +85,18 @@ module.exports = {
 
                   reply(response);
                 })
-                .catch(function (err) {
-                  reply(Boom.notFound('Channel not found.'));
+                .catch(function(err) {
+                  reply(Boom.badImplementation('Could not be fetch channel after attaching user'));
                 });
             }).catch(function(err) {
-              reply(Boom.internal('Channel could not be joined.'));
+              reply(Boom.badImplementation('Could not attach user to channel'));
             })
           }).catch(function(err) {
-            reply(Boom.internal('Channel could not be joined.'));
+            reply(Boom.badImplementation('Could not load users of channel'));
           })
       })
       .catch(function(err) {
-        reply(Boom.notFound('Channel not found.'));
+        reply(Boom.notFound('Channel not found'));
       })
   },
 
@@ -118,8 +119,7 @@ module.exports = {
         reply(response);
       })
       .catch(function(err) {
-        console.log(err);
-        reply(Boom.badRequest('Channel could not be created.'));
+        reply(Boom.badImplementation('Channel could not be saved to database. Name might already be taken'));
       });
   }
 };
