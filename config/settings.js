@@ -28,7 +28,7 @@ module.exports = {
   rootPath,
   jwtSecret,
   environment,
-  cookieDomain,
   allowedOrigins,
+  cookieDomain,
   cookiePassword
 };

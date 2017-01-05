@@ -50,7 +50,7 @@ server.register([
       redirectTo: false,
       clearInvalid: true,
       domain: settings.cookieDomain,
-      isSecure: settings.environment !== 'development',
+      isSecure: settings.environment === 'production',
 
       // Unfortunately, WS client cannot send back http-only cookies..
       isHttpOnly: false

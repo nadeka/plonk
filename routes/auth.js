@@ -25,6 +25,13 @@ module.exports = [
     }
   },
   {
+    path: '/logout',
+    method: 'POST',
+    config: {
+      handler: authController.logout
+    }
+  },
+  {
     path: '/reauthenticate',
     method: 'POST',
     config: {

@@ -62,6 +62,11 @@ module.exports = {
       });
   },
 
+  logout: function (request, reply) {
+    request.cookieAuth.clear();
+    reply();
+  },
+
   reauthenticate: function (request, reply) {
     reply(request.auth.credentials);
   },
