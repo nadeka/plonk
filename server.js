@@ -36,6 +36,7 @@ server.register([require('hapi-auth-cookie'), nesConfig], function (err) {
       validateFunc: authController.validate,
       redirectTo: false,
       clearInvalid: true,
+      domain: '.exoenzy.me',
       isSecure: settings.environment !== 'development',
 
       // TODO find a way to make hapi-auth-cookie work with Nes without client manually sending cookie..
