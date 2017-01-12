@@ -14,5 +14,9 @@ module.exports = {
     name: Joi.string().alphanum().min(1).max(30).required(),
     private: Joi.boolean().required()
   }),
-  id: Joi.number().min(1).max(9999999)
+  id: Joi.number().min(1).max(9999999),
+  invitation: Joi.object({
+    inviteename: Joi.string().alphanum().min(1).max(30).required(),
+    message: Joi.string().min(1).max(3000).optional()
+  })
 };

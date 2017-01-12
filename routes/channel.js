@@ -53,6 +53,20 @@ module.exports = [
     }
   },
   {
+    path: '/channels/{id}/invite',
+    method: 'POST',
+    config: {
+      auth: 'session',
+      handler: channelController.inviteUser,
+      validate: {
+        params: {
+          id: validators.id
+        },
+        payload: validators.invitation
+      }
+    }
+  },
+  {
     path: '/channels',
     method: 'POST',
     config: {

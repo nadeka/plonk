@@ -10,6 +10,9 @@ let User = bookshelf.Model.extend({
   channels: function() {
     return this.belongsToMany('Channel', 'channel_user',
       'userid', 'channelid');
+  },
+  receivedInvitations: function() {
+    return this.hasMany('Invitation', 'inviteeid');
   }
 });
 

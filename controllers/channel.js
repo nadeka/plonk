@@ -4,6 +4,8 @@ let Boom = require('boom');
 
 let channel = require('../models/channel');
 let message = require('../models/msg');
+let user = require('../models/user');
+let invitation = require('../models/invitation');
 let server = require('../server').server;
 
 module.exports = {
@@ -98,6 +100,40 @@ module.exports = {
       .catch(function(err) {
         reply(Boom.notFound('Channel not found'));
       })
+  },
+
+  inviteUser: function (request, reply) {
+    new user.User({ name: request.payload.inviteename })
+      .fetch({ require: true })
+      .then(function(user) {
+        user = user.toJSON({ omitPivot: true });
+
+        let newInvitation = {
+          inviterid: request.auth.credentials.id,
+          inviteeid: user.id,
+          channelid: Number(request.params.id),
+          message: request.payload.message || null,
+          createdat: new Date(),
+          updatedat: new Date()
+        };
+
+        new invitation.Invitation(newInvitation)
+          .save()
+          .then(function(invitation) {
+            let response = invitation.toJSON({ omitPivot: true });
+
+            server.publish(`/users/${user.id}/invitations`, response);
+
+            reply(invitation);
+          })
+          .catch(function(err) {
+            console.log(err);
+            reply(Boom.badImplementation('Invitation could not be saved to database'));
+          });
+      })
+      .catch(function(err) {
+        reply(Boom.notFound('Invited user not found'));
+      });
   },
 
   createChannel: function (request, reply) {

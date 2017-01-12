@@ -8,7 +8,7 @@ module.exports = {
 
   getUser: function (request, reply) {
     new user.User({ id: request.params.id })
-      .fetch({ withRelated: ['channels', 'messages'], require: true })
+      .fetch({ withRelated: ['channels', 'messages', 'receivedInvitations'], require: true })
       .then(function(user) {
         let response = user.toJSON({ omitPivot: true });
 
@@ -23,7 +23,7 @@ module.exports = {
 
   getUsers: function (request, reply) {
     new user.User()
-      .fetchAll({ withRelated: ['channels', 'messages'] })
+      .fetchAll({ withRelated: ['channels', 'messages', 'receivedInvitations'] })
       .then(function(users) {
         let response = users.toJSON({ omitPivot: true });
 

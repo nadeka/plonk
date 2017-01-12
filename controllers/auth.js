@@ -15,7 +15,7 @@ module.exports = {
 
     if (payload) {
       new user.User({ id: payload.id })
-        .fetch({ require: true })
+        .fetch({ withRelated: ['channels', 'messages', 'receivedInvitations'], require: true })
         .then(function(user) {
           user = user.toJSON({ omitPivot: true });
 
@@ -24,17 +24,19 @@ module.exports = {
           callback(null, true, user);
         })
         .catch(function(err) {
+          request.cookieAuth.clear();
           callback(Boom.unauthorized('Invalid JWT token'), false, null);
         });
     }
     else {
+      request.cookieAuth.clear();
       callback(Boom.unauthorized('Invalid JWT token'), false, null);
     }
   },
 
   login: function (request, reply) {
     new user.User({ name: request.payload.name })
-      .fetch({ require: true })
+      .fetch({ withRelated: ['channels', 'messages', 'receivedInvitations'], require: true })
       .then(function(user) {
         user = user.toJSON();
 
@@ -58,6 +60,7 @@ module.exports = {
         });
       })
       .catch(function(err) {
+        request.cookieAuth.clear();
         reply(Boom.notFound('User not found'));
       });
   },
@@ -103,6 +106,7 @@ module.exports = {
           reply(user);
         })
         .catch(function(err) {
+          request.cookieAuth.clear();
           reply(Boom.badImplementation('User could not be saved to database. Name might already be taken'));
         });
     });

@@ -33,7 +33,7 @@ describe('Users', function() {
   });
 
   describe('GET /users', function() {
-    it('returns all users and status 200 when given cookie is valid', function (done) {
+    it('returns all users and status 200 when given token is valid', function (done) {
       let validPostData = {
         name: 'Pirjo',
         password: '123'
@@ -63,7 +63,7 @@ describe('Users', function() {
   });
 
   describe('GET /users/{id}', function() {
-    it('returns correct user and status 200 when given user id is 1 and cookie is valid', function (done) {
+    it('returns correct user and status 200 when given user id is 1 and token is valid', function (done) {
       let validPostData = {
         name: 'Pirjo',
         password: '123'
@@ -92,7 +92,7 @@ describe('Users', function() {
       });
     });
 
-    it("returns error 400 when given user id is 'asdasd' and cookie is valid", function (done) {
+    it("returns error 400 when given user id is 'asdasd' and token is valid", function (done) {
       let validPostData = {
         name: 'Pirjo',
         password: '123'
@@ -115,7 +115,7 @@ describe('Users', function() {
       });
     });
 
-    it("returns error 404 when given user id is 999999 and cookie is valid", function (done) {
+    it("returns error 404 when given user id is 999999 and token is valid", function (done) {
       let validPostData = {
         name: 'Pirjo',
         password: '123'
@@ -138,7 +138,7 @@ describe('Users', function() {
       });
     });
 
-    it("returns error 400 when given user id is 10000000 and cookie is valid", function (done) {
+    it("returns error 400 when given user id is 10000000 and token is valid", function (done) {
       let validPostData = {
         name: 'Pirjo',
         password: '123'

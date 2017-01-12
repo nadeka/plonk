@@ -223,4 +223,71 @@ describe('Auth', function() {
       done();
     });
   });
+
+  describe('POST /reauthenticate', function() {
+    it('should successfully reauthenticate user with valid token', function (done) {
+      let registerUrl = "http://localhost:6002/register";
+      let reauthenticateUrl = "http://localhost:6002/reauthenticate";
+
+      let validRegisterData = {
+        name: 'Pirjo',
+        password: 'abc'
+      };
+
+      request.post({
+        uri: registerUrl,
+        body: validRegisterData,
+        json: true
+      }, function (error, res, body) {
+        chai.expect(res.statusCode).to.equal(200);
+
+        let user = body;
+
+        chai.expect(user.id).to.equal(3);
+
+        request.post({
+          uri: reauthenticateUrl,
+          json: true,
+          headers: {'Cookie': 'accessToken=' + res.headers['set-cookie'][0].split('=')[1].split(';')[0]}
+        }, function (error, response, body) {
+          chai.expect(response.statusCode).to.equal(200);
+
+          let credentials = body;
+
+          chai.expect(credentials.id).to.equal(3);
+
+          done();
+        });
+      });
+    });
+
+    it('should not successfully reauthenticate with existing but invalid token', function (done) {
+      let reauthenticateUrl = "http://localhost:6002/reauthenticate";
+
+      request.post({
+        uri: reauthenticateUrl,
+        json: true,
+        headers: {'Cookie': 'accessToken=blah123'}
+      }, function (error, response, body) {
+        chai.expect(body.statusCode).to.equal(401);
+        chai.expect(body.error).to.equal('Unauthorized');
+
+        done();
+      });
+    });
+
+    it('should not successfully reauthenticate without token', function (done) {
+      let reauthenticateUrl = "http://localhost:6002/reauthenticate";
+
+      request.post({
+        uri: reauthenticateUrl,
+        json: true
+      }, function (error, response, body) {
+        chai.expect(body.statusCode).to.equal(401);
+        chai.expect(body.error).to.equal('Unauthorized');
+
+        done();
+      });
+    });
+  });
 });

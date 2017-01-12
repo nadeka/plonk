@@ -63,6 +63,7 @@ server.register([
     server.subscription('/new-message');
     server.subscription('/new-channel');
     server.subscription('/user-joined');
+    server.subscription(`/users/{id}/invitations`);
 
     server.start((err) => {
       if (err) {
