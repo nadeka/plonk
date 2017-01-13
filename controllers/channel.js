@@ -56,7 +56,7 @@ module.exports = {
       .then(function(message) {
         let response = message.toJSON({ omitPivot: true });
 
-        server.publish('/new-message', response);
+        server.publish(`/channels/${newMessage.channelid}/new-message`, response);
 
         reply(response);
       })
@@ -83,7 +83,7 @@ module.exports = {
 
                   response.users.forEach(user => delete user.password);
 
-                  server.publish('/user-joined', response);
+                  server.publish(`/channels/${response.id}/new-member`, response);
 
                   reply(response);
                 })

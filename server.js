@@ -60,9 +60,9 @@ server.register([
 
     server.route(routes);
 
-    server.subscription('/new-message');
+    server.subscription('/channels/{id}/new-message');
     server.subscription('/new-channel');
-    server.subscription('/user-joined');
+    server.subscription('/channels/{id}/new-member');
     server.subscription(`/users/{id}/invitations`);
 
     server.start((err) => {
