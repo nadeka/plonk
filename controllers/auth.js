@@ -15,7 +15,7 @@ module.exports = {
 
     if (payload) {
       new user.User({ id: payload.id })
-        .fetch({ withRelated: ['channels', 'messages', 'receivedInvitations'], require: true })
+        .fetch({ withRelated: ['channels', 'receivedInvitations'], require: true })
         .then(function(user) {
           user = user.toJSON({ omitPivot: true });
 
@@ -36,7 +36,7 @@ module.exports = {
 
   login: function (request, reply) {
     new user.User({ name: request.payload.name })
-      .fetch({ withRelated: ['channels', 'messages', 'receivedInvitations'], require: true })
+      .fetch({ withRelated: ['channels', 'receivedInvitations'], require: true })
       .then(function(user) {
         user = user.toJSON();
 
@@ -100,6 +100,8 @@ module.exports = {
           let jwtToken = Jwt.encode(payload, jwtSecret, 'HS256');
 
           delete user.password;
+
+          user.channels = user.messages = user.receivedInvitations = [];
 
           request.cookieAuth.set({ accessToken: jwtToken });
 

@@ -3,6 +3,7 @@
 let Boom = require('boom');
 
 let user = require('../models/user');
+let channel = require('../models/channel');
 
 module.exports = {
 
@@ -10,11 +11,11 @@ module.exports = {
     new user.User({ id: request.params.id })
       .fetch({ withRelated: ['channels', 'messages', 'receivedInvitations'], require: true })
       .then(function(user) {
-        let response = user.toJSON({ omitPivot: true });
+        user = user.toJSON({ omitPivot: true });
 
-        delete response.password;
+        delete user.password;
 
-        reply(response);
+        reply(user);
       })
       .catch(function(err) {
         reply(Boom.notFound('User not found'));
@@ -25,14 +26,31 @@ module.exports = {
     new user.User()
       .fetchAll({ withRelated: ['channels', 'messages', 'receivedInvitations'] })
       .then(function(users) {
-        let response = users.toJSON({ omitPivot: true });
+        users = users.toJSON({ omitPivot: true });
 
-        response.forEach(user => delete user.password);
+        users.forEach(user => delete user.password);
 
-        reply(response);
+        reply(users);
       })
       .catch(function(err) {
         reply(Boom.badImplementation('Users could not be fetched from database'));
+      });
+  },
+
+  getChannels: function (request, reply) {
+    new channel.Channel({ userid: request.params.id })
+      .fetchAll({ withRelated: ['users', 'messages'] })
+      .then(function(channels) {
+        channels = channels.toJSON({ omitPivot: true });
+
+        channels.forEach(function(channel) {
+          channel.users.forEach(user => delete user.password);
+        });
+
+        reply(channels);
+      })
+      .catch(function(err) {
+        reply(Boom.badImplementation('Channels of user could not be fetched from database'));
       });
   }
 };

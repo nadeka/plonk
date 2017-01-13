@@ -14,11 +14,11 @@ module.exports = {
     new channel.Channel({ id: request.params.id })
       .fetch({ withRelated: ['users', 'messages'], require: true })
       .then(function(channel) {
-        let response = channel.toJSON({ omitPivot: true });
+        channel = channel.toJSON({ omitPivot: true });
 
-        response.users.forEach(user => delete user.password);
+        channel.users.forEach(user => delete user.password);
 
-        reply(response);
+        reply(channel);
       })
       .catch(function(err) {
         reply(Boom.notFound('Channel not found'));
@@ -27,15 +27,11 @@ module.exports = {
 
   getChannels: function (request, reply) {
     new channel.Channel()
-      .fetchAll({ withRelated: ['users', 'messages'] })
+      .fetchAll()
       .then(function(channels) {
-        let response = channels.toJSON({ omitPivot: true });
+        channels = channels.toJSON({ omitPivot: true });
 
-        response.forEach(function(channel) {
-          channel.users.forEach(user => delete user.password);
-        });
-
-        reply(response);
+        reply(channels);
       })
       .catch(function(err) {
         reply(Boom.badImplementation('Channels could not be fetched from database'));
@@ -54,11 +50,11 @@ module.exports = {
     new message.Message(newMessage)
       .save()
       .then(function(message) {
-        let response = message.toJSON({ omitPivot: true });
+        message = message.toJSON({ omitPivot: true });
 
-        server.publish(`/channels/${newMessage.channelid}/new-message`, response);
+        server.publish(`/channels/${message.channelid}/new-message`, message);
 
-        reply(response);
+        reply(message);
       })
       .catch(function(err) {
         reply(Boom.badImplementation('Message could not be saved to database'));
@@ -79,13 +75,13 @@ module.exports = {
               new channel.Channel({ id: request.params.id })
                 .fetch({ withRelated: ['users', 'messages'], require: true })
                 .then(function(channel) {
-                  let response = channel.toJSON({ omitPivot: true });
+                  channel = channel.toJSON({ omitPivot: true });
 
-                  response.users.forEach(user => delete user.password);
+                  channel.users.forEach(user => delete user.password);
 
-                  server.publish(`/channels/${response.id}/new-member`, response);
+                  server.publish(`/channels/${channel.id}/new-member`, channel);
 
-                  reply(response);
+                  reply(channel);
                 })
                 .catch(function(err) {
                   reply(Boom.badImplementation('Could not be fetch channel after attaching user'));
@@ -120,9 +116,9 @@ module.exports = {
         new invitation.Invitation(newInvitation)
           .save()
           .then(function(invitation) {
-            let response = invitation.toJSON({ omitPivot: true });
+            invitation = invitation.toJSON({ omitPivot: true });
 
-            server.publish(`/users/${user.id}/invitations`, response);
+            server.publish(`/users/${user.id}/invitations`, invitation);
 
             reply(invitation);
           })
@@ -148,11 +144,11 @@ module.exports = {
     new channel.Channel(newChannel)
       .save()
       .then(function(channel) {
-        let response = channel.toJSON({ omitPivot: true });
+        channel = channel.toJSON({ omitPivot: true });
 
-        server.publish('/new-channel', response);
+        server.publish('/new-channel', channel);
 
-        reply(response);
+        reply(channel);
       })
       .catch(function(err) {
         reply(Boom.badImplementation('Channel could not be saved to database. Name might already be taken'));

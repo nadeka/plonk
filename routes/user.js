@@ -18,6 +18,19 @@ module.exports = [
     }
   },
   {
+    path: '/users/{id}/channels',
+    method: 'GET',
+    config: {
+      auth: 'session',
+      handler: userController.getChannels,
+      validate: {
+        params: {
+          id: validators.id
+        }
+      }
+    }
+  },
+  {
     path: '/users',
     method: 'GET',
     config: {
