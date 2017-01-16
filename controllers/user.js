@@ -51,5 +51,20 @@ module.exports = {
         console.log(err);
         reply(Boom.badImplementation('Channels of user could not be fetched from database'));
       });
+  },
+
+  deleteReceivedInvitation: function (request, reply) {
+    new invitation.Invitation()
+      .where({ id: request.params.id })
+      .destroy()
+      .then(function(invitation) {
+        invitation = invitation.toJSON();
+
+        reply(invitation);
+      })
+      .catch(function(err) {
+        console.log(err);
+        reply(Boom.badImplementation('Invitation could not be deleted from database'));
+      });
   }
 };

@@ -29,5 +29,18 @@ module.exports = [
         }
       }
     }
+  },
+  {
+    path: '/user/receivedInvitations/{id}/delete',
+    method: 'POST',
+    config: {
+      auth: 'session',
+      handler: userController.deleteReceivedInvitation,
+      validate: {
+        params: {
+          id: validators.id
+        }
+      }
+    }
   }
 ];
