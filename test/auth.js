@@ -34,7 +34,6 @@ describe('Auth', function() {
 
   describe("POST /register", function() {
     let registerUrl = "http://localhost:6002/register";
-    let usersUrl = "http://localhost:6002/users";
 
     it('creates new user and returns status 200 when valid payload is given', function (done) {
       let validPostData = {
@@ -53,19 +52,7 @@ describe('Auth', function() {
 
         chai.expect(user.id).to.equal(3);
 
-        request.get({
-          uri: usersUrl,
-          json: true,
-          headers: {
-            'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0]
-          }
-        }, function (error, response, body) {
-          let users = body;
-          
-          chai.expect(users.length).to.equal(3);
-
-          done();
-        });
+        done();
       });
     });
 

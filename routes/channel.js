@@ -5,19 +5,6 @@ let validators = require('../validators/validators');
 
 module.exports = [
   {
-    path: '/channels/{id}',
-    method: 'GET',
-    config: {
-      auth: 'session',
-      handler: channelController.getChannel,
-      validate: {
-        params: {
-          id: validators.id
-        }
-      }
-    }
-  },
-  {
     path: '/channels',
     method: 'GET',
     config: {

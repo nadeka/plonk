@@ -10,23 +10,9 @@ let server = require('../server').server;
 
 module.exports = {
 
-  getChannel: function (request, reply) {
-    new channel.Channel({ id: request.params.id })
-      .fetch({ withRelated: ['users', 'messages'], require: true })
-      .then(function(channel) {
-        channel = channel.toJSON({ omitPivot: true });
-
-        channel.users.forEach(user => delete user.password);
-
-        reply(channel);
-      })
-      .catch(function(err) {
-        reply(Boom.notFound('Channel not found'));
-      });
-  },
-
   getChannels: function (request, reply) {
     new channel.Channel()
+      .where({private: false})
       .fetchAll()
       .then(function(channels) {
         channels = channels.toJSON({ omitPivot: true });
@@ -49,18 +35,24 @@ module.exports = {
 
     new message.Message(newMessage)
       .save()
-      .then(function(message) {
-        message = message.toJSON({ omitPivot: true });
+      .then(function(msg) {
+        msg.load([{'user': function(qb) {
+          qb.column('user.id', 'user.name');
+        }}, 'channel'])
+          .then(function(message) {
+            message = message.toJSON({ omitPivot: true });
 
-        server.publish(`/channels/${message.channelid}/new-message`, message);
+            server.publish(`/channels/${message.channelid}/new-message`, message);
 
-        reply(message);
+            reply(message);
+          });
       })
       .catch(function(err) {
         reply(Boom.badImplementation('Message could not be saved to database'));
       });
   },
 
+  // TODO simplify
   joinChannel: function (request, reply) {
     new channel.Channel({ id: request.params.id })
       .fetch({ require: true })
@@ -73,11 +65,13 @@ module.exports = {
                 updatedat: new Date()
             }).then(function(m) {
               new channel.Channel({ id: request.params.id })
-                .fetch({ withRelated: ['users', 'messages'], require: true })
+                .fetch({ withRelated: [{'users': function(qb) {
+                  qb.column('user.id', 'user.name');
+                }}, {'messages.user': function(qb) {
+                  qb.column('user.id', 'user.name')
+                }}], require: true })
                 .then(function(channel) {
                   channel = channel.toJSON({ omitPivot: true });
-
-                  channel.users.forEach(user => delete user.password);
 
                   server.publish(`/channels/${channel.id}/new-member`, channel);
 
@@ -115,17 +109,28 @@ module.exports = {
 
         new invitation.Invitation(newInvitation)
           .save()
-          .then(function(invitation) {
-            invitation = invitation.toJSON({ omitPivot: true });
+          .then(function(inv) {
+            inv.load([{
+              'inviter': function(qb) {
+                qb.column('user.id', 'user.name');
+              }
+            }, {
+              'channel': function(qb) {
+                qb.column('id', 'name');
+              }
+            }])
+              .then(function (invitation) {
+                invitation = invitation.toJSON({omitPivot: true});
 
-            server.publish(`/users/${user.id}/invitations`, invitation);
+                server.publish(`/users/${user.id}/invitations`, invitation);
 
-            reply(invitation);
+                reply(invitation);
+              })
+              .catch(function (err) {
+                console.log(err);
+                reply(Boom.badImplementation('Invitation could not be saved to database'));
+              })
           })
-          .catch(function(err) {
-            console.log(err);
-            reply(Boom.badImplementation('Invitation could not be saved to database'));
-          });
       })
       .catch(function(err) {
         reply(Boom.notFound('Invited user not found'));
@@ -146,7 +151,9 @@ module.exports = {
       .then(function(channel) {
         channel = channel.toJSON({ omitPivot: true });
 
-        server.publish('/new-channel', channel);
+        if (!channel.private) {
+          server.publish('/new-channel', channel);
+        }
 
         reply(channel);
       })

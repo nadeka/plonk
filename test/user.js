@@ -10,6 +10,10 @@ let chai = require('chai');
 
 let request = require('request');
 
+function getAccessTokenFromResponse(response) {
+  return response.headers['set-cookie'][0].split('=')[1].split(';')[0];
+}
+
 describe('Users', function() {
 
   beforeEach(function(done) {
@@ -32,131 +36,177 @@ describe('Users', function() {
       });
   });
 
-  describe('GET /users', function() {
-    it('returns all users and status 200 when given token is valid', function (done) {
+  describe('GET /user/channels', function() {
+    it('returns empty array and status 200 for user without joined channels', function (done) {
       let validPostData = {
         name: 'Pirjo',
         password: '123'
       };
 
       request.post({
-        uri: "http://localhost:6002/register",
+        uri: 'http://localhost:6002/register',
         body: validPostData,
         json: true
       }, function (error, response, body) {
         request.get({
-          uri: "http://localhost:6002/users",
+          uri: "http://localhost:6002/user/channels",
           json: true,
-          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+          headers: { 'Cookie': 'accessToken=' + getAccessTokenFromResponse(response) }
         }, function(error, response, body) {
           chai.expect(response.statusCode).to.equal(200);
 
-          let users = body;
+          let channels = body;
 
-          chai.expect(users).to.be.an('array');
-          chai.expect(users.length).to.equal(3);
+          chai.expect(channels).to.be.an('array');
+          chai.expect(channels.length).to.equal(0);
 
           done();
+        });
+      });
+    });
+
+    it('returns array of size 2 and status 200 for user with 2 joined channels', function (done) {
+      let validPostData = {
+        name: 'Pirjo',
+        password: '123'
+      };
+
+      request.post({
+        uri: 'http://localhost:6002/register',
+        body: validPostData,
+        json: true
+      }, function (error, res, body) {
+
+        request.post({
+          uri: 'http://localhost:6002/channels/1/join',
+          json: true,
+          headers: { 'Cookie': 'accessToken=' + getAccessTokenFromResponse(res) }
+        }, function (error, response, body) {
+
+          request.post({
+            uri: 'http://localhost:6002/channels/2/join',
+            json: true,
+            headers: { 'Cookie': 'accessToken=' + getAccessTokenFromResponse(res) }
+          }, function (error, response, body) {
+
+            request.get({
+              uri: "http://localhost:6002/user/channels",
+              json: true,
+              headers: { 'Cookie': 'accessToken=' + getAccessTokenFromResponse(res) }
+            }, function(error, response, body) {
+              chai.expect(response.statusCode).to.equal(200);
+
+              let channels = body;
+
+              chai.expect(channels).to.be.an('array');
+              chai.expect(channels.length).to.equal(2);
+
+              done();
+            });
+          });
         });
       });
     });
   });
 
-  describe('GET /users/{id}', function() {
-    it('returns correct user and status 200 when given user id is 1 and token is valid', function (done) {
+  describe('GET /user/receivedInvitations', function() {
+    it('returns empty array and status 200 for user without received invitations', function (done) {
       let validPostData = {
         name: 'Pirjo',
         password: '123'
       };
 
       request.post({
-        uri: "http://localhost:6002/register",
+        uri: 'http://localhost:6002/register',
         body: validPostData,
         json: true
       }, function (error, response, body) {
         request.get({
-          uri: "http://localhost:6002/users/1",
+          uri: "http://localhost:6002/user/receivedInvitations",
           json: true,
-          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
+          headers: { 'Cookie': 'accessToken=' + getAccessTokenFromResponse(response) }
         }, function(error, response, body) {
           chai.expect(response.statusCode).to.equal(200);
 
-          let user = body;
+          let invitations = body;
 
-          chai.expect(user.name).to.equal('Salli');
-          chai.expect(user.createdat).to.be.defined;
-          chai.expect(user.updatedat).to.be.defined;
-
-          done();
-        });
-      });
-    });
-
-    it("returns error 400 when given user id is 'asdasd' and token is valid", function (done) {
-      let validPostData = {
-        name: 'Pirjo',
-        password: '123'
-      };
-
-      request.post({
-        uri: "http://localhost:6002/register",
-        body: validPostData,
-        json: true
-      }, function (error, response, body) {
-        request.get({
-          uri: "http://localhost:6002/users/asdasd",
-          json: true,
-          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
-        }, function(error, response, body) {
-          chai.expect(body.statusCode).to.equal(400);
+          chai.expect(invitations).to.be.an('array');
+          chai.expect(invitations.length).to.equal(0);
 
           done();
         });
       });
     });
 
-    it("returns error 404 when given user id is 999999 and token is valid", function (done) {
+    it('returns array of size 2 and status 200 for user with 2 received invitations', function (done) {
       let validPostData = {
         name: 'Pirjo',
         password: '123'
       };
 
       request.post({
-        uri: "http://localhost:6002/register",
+        uri: 'http://localhost:6002/register',
         body: validPostData,
         json: true
-      }, function (error, response, body) {
-        request.get({
-          uri: "http://localhost:6002/users/999999",
-          json: true,
-          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
-        }, function(error, response, body) {
-          chai.expect(body.statusCode).to.equal(404);
+      }, function (error, res, body) {
 
-          done();
-        });
-      });
-    });
+        let inviterAccessToken = getAccessTokenFromResponse(res);
 
-    it("returns error 400 when given user id is 10000000 and token is valid", function (done) {
-      let validPostData = {
-        name: 'Pirjo',
-        password: '123'
-      };
+        validPostData = {
+          name: 'Pekka',
+          password: '123'
+        };
 
-      request.post({
-        uri: "http://localhost:6002/register",
-        body: validPostData,
-        json: true
-      }, function (error, response, body) {
-        request.get({
-          uri: "http://localhost:6002/users/10000000",
-          json: true,
-          headers: { 'Cookie': 'accessToken=' + response.headers['set-cookie'][0].split('=')[1].split(';')[0] }
-        }, function(error, response, body) {
-          chai.expect(body.statusCode).to.equal(400);
+        request.post({
+          uri: 'http://localhost:6002/register',
+          body: validPostData,
+          json: true
+        }, function (error, response, body) {
 
-          done();
+          let inviteeAccessToken = getAccessTokenFromResponse(response);
+
+          request.post({
+            uri: 'http://localhost:6002/channels/1/invite',
+            json: true,
+            body: {
+              inviteename: 'Pekka',
+              message: 'Welcome!'
+            },
+            headers: {'Cookie': 'accessToken=' + inviterAccessToken}
+          }, function (error, r, body) {
+
+            request.post({
+              uri: 'http://localhost:6002/channels/2/invite',
+              json: true,
+              body: {
+                inviteename: 'Pekka',
+                message: 'Welcome!'
+              },
+              headers: {'Cookie': 'accessToken=' + inviterAccessToken}
+            }, function (error, r, body) {
+
+              request.get({
+                uri: "http://localhost:6002/user/receivedInvitations",
+                json: true,
+                headers: {'Cookie': 'accessToken=' + inviteeAccessToken}
+              }, function (error, response, body) {
+                chai.expect(response.statusCode).to.equal(200);
+
+                let invitations = body;
+
+                chai.expect(invitations).to.be.an('array');
+                chai.expect(invitations.length).to.equal(2);
+
+                invitations.forEach(inv =>
+                  chai.expect(inv.inviteeid).to.equal(4) &&
+                  chai.expect(inv.inviterid).to.equal(3) &&
+                  chai.expect(inv.message).to.equal('Welcome!')
+                );
+
+                done();
+              });
+            });
+          });
         });
       });
     });

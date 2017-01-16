@@ -5,10 +5,10 @@ let bookshelf = require('../config/bookshelf');
 let Message = bookshelf.Model.extend({
   tableName: 'message',
   user: function() {
-    return this.belongsTo('User');
+    return this.belongsTo('User', 'userid');
   },
   channel: function() {
-    return this.belongsTo('Channel');
+    return this.belongsTo('Channel', 'channelid');
   }
 });
 

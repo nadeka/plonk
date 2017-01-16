@@ -5,20 +5,7 @@ let validators = require('../validators/validators');
 
 module.exports = [
   {
-    path: '/users/{id}',
-    method: 'GET',
-    config: {
-      auth: 'session',
-      handler: userController.getUser,
-      validate: {
-        params: {
-          id: validators.id
-        }
-      }
-    }
-  },
-  {
-    path: '/users/{id}/channels',
+    path: '/user/channels',
     method: 'GET',
     config: {
       auth: 'session',
@@ -31,11 +18,16 @@ module.exports = [
     }
   },
   {
-    path: '/users',
+    path: '/user/receivedInvitations',
     method: 'GET',
     config: {
       auth: 'session',
-      handler: userController.getUsers
+      handler: userController.getReceivedInvitations,
+      validate: {
+        params: {
+          id: validators.id
+        }
+      }
     }
   }
 ];
